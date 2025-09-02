@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const contentController = require("./controllers/contentController");
 const authController = require("./controllers/authentication");
 
 module.exports = () => {
@@ -44,30 +43,7 @@ module.exports = () => {
             res.status(500).json({ message: "Internal server error" });
         }
     });
-    router.post("/insertContent", async (req, res) => {
-        try {
-await contentController.insertContent(req, res);
-        }catch(err){
-            console.error("Error in insert content route:", err);
-            res.status(500).json({ message: "Internal server error" });
-        }
-    })
-    router.get("/selectAllContent", async (req, res) => {
-        try {
-            await contentController.selectAllContent(req, res);
-        } catch (err) {
-            console.error("Error in select all content route:", err);
-            res.status(500).json({ message: "Internal server error" });
-        }
-    });
-    router.post("/selectContentById", async (req, res) => {
-        try {
-            await contentController.selectContentById(req, res);
-        }
-        catch (err) {
-            console.error("Error in select content by ID route:", err);
-            res.status(500).json({ message: "Internal server error" });
-        }  
-    })
+
+
 return router
 }

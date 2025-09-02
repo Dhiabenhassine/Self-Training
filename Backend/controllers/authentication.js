@@ -204,46 +204,59 @@ const login=async(req,res)=>{
 const register = async (req, res) => {
     try {
         const { Name, SurName, Email, Password, Phone } = req.body;
+
         if (!Name || !SurName || !Email || !Password || !Phone) {
             return res.status(400).json({ message: "All fields are required" });
         }
+
         if (typeof Password !== "string") {
             return res.status(400).json({ message: "Password must be a string" });
         }
 
+        // Check if user already exists
         const [existingUser] = await sequelize.query(
-            "SELECT * FROM users WHERE Email = ?",
+            "SELECT * FROM Users WHERE Email = ? LIMIT 1",
             {
                 replacements: [Email],
                 type: sequelize.QueryTypes.SELECT
             }
         );
+
         if (existingUser) {
             return res.status(409).json({ message: "User already exists" });
         }
 
+        // Hash password
         const hashedPassword = await bcrypt.hash(Password, 10);
-        const [user] = await sequelize.query(
-            "INSERT INTO users (Name, SurName, Email, Password, Phone,Role,Payement,TypePayement) VALUES (?, ?, ?, ?, ?,?,?,?)",
+
+        // Insert user
+        const [result, metadata] = await sequelize.query(
+            "INSERT INTO Users (Name, SurName, Email, Password, Phone, Role, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)",
             {
-                replacements: [Name, SurName, Email, hashedPassword, Phone,"user","0","ReadOnly"],
+                replacements: [Name, SurName, Email, hashedPassword, Phone, "User", 0],
                 type: sequelize.QueryTypes.INSERT
             }
         );
 
+        const insertId = metadata && metadata.insertId ? metadata.insertId : result;
+
+        // Generate JWT
         if (!process.env.JWT_SECRET) {
             throw new Error("JWT_SECRET environment variable is not set");
         }
-        const token = jwt.sign({ id: user.insertId }, process.env.JWT_SECRET, {
+
+        const token = jwt.sign({ id: insertId }, process.env.JWT_SECRET, {
             expiresIn: "1h"
         });
+
         res.status(201).json({ message: "User registered successfully", token });
 
     } catch (err) {
         console.error("Error during registration:", err);
         res.status(500).json({ message: "Internal server error" });
     }
-}
+};
+
 
 module.exports = {
     register,
