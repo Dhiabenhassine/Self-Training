@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const authController = require("./controllers/authentication");
+const packageController = require ('./controllers/packagesController')
 
 module.exports = () => {
     router.post("/register", async (req, res) => {
@@ -43,7 +44,21 @@ module.exports = () => {
             res.status(500).json({ message: "Internal server error" });
         }
     });
-
-
+    router.post("/insertPackage", async(req,res)=>{
+        try{
+            await packageController.insertPackage(req,res)
+        }catch(err){
+            console.error('error from router insert package')
+            res.status(500).json({message: "internal server error"})
+        }
+    })
+   router.get("/allPackages", async(req,res)=>{
+        try{
+            await packageController.selectPackages(req,res)
+        }catch(err){
+            console.error('error from router select package')
+            res.status(500).json({message: "internal server error"})
+        }
+    })
 return router
 }

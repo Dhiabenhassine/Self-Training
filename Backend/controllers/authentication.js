@@ -213,7 +213,6 @@ const register = async (req, res) => {
             return res.status(400).json({ message: "Password must be a string" });
         }
 
-        // Check if user already exists
         const [existingUser] = await sequelize.query(
             "SELECT * FROM Users WHERE Email = ? LIMIT 1",
             {
@@ -226,10 +225,8 @@ const register = async (req, res) => {
             return res.status(409).json({ message: "User already exists" });
         }
 
-        // Hash password
         const hashedPassword = await bcrypt.hash(Password, 10);
 
-        // Insert user
         const [result, metadata] = await sequelize.query(
             "INSERT INTO Users (Name, SurName, Email, Password, Phone, Role, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)",
             {
@@ -240,7 +237,6 @@ const register = async (req, res) => {
 
         const insertId = metadata && metadata.insertId ? metadata.insertId : result;
 
-        // Generate JWT
         if (!process.env.JWT_SECRET) {
             throw new Error("JWT_SECRET environment variable is not set");
         }
