@@ -60,5 +60,21 @@ module.exports = () => {
             res.status(500).json({message: "internal server error"})
         }
     })
+      router.post("/selectPackageById", async(req,res)=>{
+        try{
+            await packageController.selectPackageById(req,res)
+        }catch(err){
+            console.error('error from router select package')
+            res.status(500).json({message: "internal server error"})
+        }
+    })
+      router.post("/updatePackage", async(req,res)=>{
+        try{
+            await packageController.updatePackage(req,res)
+        }catch(err){
+            console.error('error from router select package')
+            res.status(500).json({message: "internal server error"})
+        }
+    })
 return router
 }
